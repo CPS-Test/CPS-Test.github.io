@@ -28,7 +28,7 @@
     }
 
     button {
-      height: 300px;
+      height: 275px;
     }
 
     button {
@@ -49,22 +49,45 @@
   below to begin!
 <br>
   <br>
+  <p1>
+    Time Left: <p2 id="time"></p2>
+  </p1>
+  <br>
   <button 
     id="btn">  
   <p>  <span id="display">0</span>  </p>
+
   <script>
+  
     let count = 0;
     let btn = document.getElementById("btn");
     let disp = document.getElementById("display");
-            
+    let timeLeft = document.getElementById("time");
+    let time = 500;
+
+    timeLeft.innerHTML = 5
     
     btn.onclick = function () {
       count++; 
       disp.innerHTML = count;
+
+     
+
+      timer = setInterval(() => {
+        if (time > 0) {
+        time--
+        timeLeft.innerHTML = time/100
+        } else if (time == 0){
+          confirm(`Time's Up Your CPS is ${count/5}`)
+          time = undefined;
+          
+          
+          btn.onclick = null;
+        }
+      }, 1)
+
         };
 
-  
-   
       </script>
     </button>
 </body>
