@@ -1,76 +1,825 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Poppins', sans-serif;
+      }
 
-<head>
-  <style>
-    h1 {
-      font-size: 100px;
-      text-align: center;
-      font: bold;
-    }
+      body {
+        color: #2c3e50;
+        font-size: 18px;
+        line-height: 1.6;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+        min-height: 100vh;
+      }
 
-    body {
-      color: black;
-      font-size: 20px;
-      text-align: center;
-    }
+      h1 {
+        font-size: 4rem;
+        text-align: center;
+        font-weight: 600;
+        color: white;
+        margin-bottom: 2rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+      }
 
-    button {
-      height: 275px;
-      width: 1000px;
-      background-color: lightgray;
-      border-color: white;
-    }
-  </style>
-</head>
-<h1>CPS Test</h1>
+      .description {
+        max-width: 800px;
+        margin: 0 auto 2rem;
+        text-align: center;
+        color: white;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 2rem;
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+      }
 
-<body>
-  CPS stand for Clicks Per Second. This is how many times you can click your mouse, trackpad, or screen in one second.
-  An average person can click with a CPS of 6.51. An average video gamer has a CPS from 7-10 depending on their game.
-  Sometimes they can go up to 20-30 CPS. Can you beat that? Test how fast you can click per second. Click the button
-  below to begin!
-<br>
-  <br>
-  <p1>
-    Time Left: <p2 id="time"></p2>
-     Seconds
-  </p1>
-  <br>
-  <button 
-    id="btn">  
-  <p>  <span id="display">0</span>  </p>
+      .timer-display {
+        font-size: 1.5rem;
+        margin: 1rem 0;
+        color: white;
+        font-weight: 600;
+        text-align: center;
+      }
 
-  <script>
-  
-    let count = 0;
-    let btn = document.getElementById("btn");
-    let disp = document.getElementById("display");
-    let timeLeft = document.getElementById("time");
-    let time = 500;
+      button#cpsbtn {
+        display: flex;
+        position: relative;
+        margin: 2rem auto;
+        height: 275px;
+        width: 100%;
+        max-width: 1000px;
+        background: linear-gradient(145deg, #7f7fd5, #86a8e7, #91eae4);
+        border: none;
+        border-radius: 15px;
+        text-align: center;
+        justify-content: center;
+        align-items: center;
+        z-index: 1;
+        cursor: pointer;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+        overflow: hidden;
+      }
 
-    timeLeft.innerHTML = 5
-    
-    btn.onclick = function () {
-      count++; 
-      disp.innerHTML = count;
+      button#cpsbtn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(45deg, #ff6b6b, #feca57, #48dbfb);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: -1;
+      }
 
-     
+      button#cpsbtn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+      }
 
-      timer = setInterval( () => {
-        if (time !== 0) {
-        time--
-        timeLeft.innerHTML = time/100
-        } else if (time == 0){
-          confirm(`Time's Up Your CPS is ${count/5}`)
-          location.reload()
+      button#cpsbtn:hover::before {
+        opacity: 1;
+      }
+
+      button#cpsbtn:active {
+        transform: translateY(2px);
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+      }
+
+      span#display {
+        position: static;
+        font-size: 3rem;
+        font-weight: 600;
+        color: white;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        z-index: 2;
+      }
+
+      .duration-select {
+        margin: 20px auto;
+        padding: 12px 24px;
+        font-size: 1rem;
+        border-radius: 10px;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        cursor: pointer;
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        display: block;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+      }
+
+      .duration-select:focus {
+        outline: none;
+        border-color: rgba(255, 255, 255, 0.5);
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+      }
+
+      .duration-select option {
+        background: #667eea;
+        color: white;
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 3;
+        backdrop-filter: blur(8px);
+        cursor: pointer;
+      }
+
+      .modal-content {
+        background: linear-gradient(135deg, #fff 0%, #f5f7fa 100%);
+        margin: 15% auto;
+        padding: 2rem;
+        border: none;
+        width: 90%;
+        max-width: 500px;
+        border-radius: 20px;
+        text-align: center;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        animation: modalSlideIn 0.3s ease;
+        cursor: default;
+      }
+
+      @keyframes modalSlideIn {
+        from {
+          transform: translateY(-100px);
+          opacity: 0;
         }
-      }, 1)
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
 
-        };
+      .close {
+        color: #95a5a6;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: color 0.3s ease;
+      }
 
-      </script>
+      .close:hover {
+        color: #e74c3c;
+      }
+
+      #tryAgainBtn {
+        height: 50px;
+        width: 200px;
+        margin: 20px auto;
+        background: linear-gradient(45deg, #00b09b, #96c93d);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: block;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 600;
+      }
+
+      #tryAgainBtn:hover {
+        background: linear-gradient(45deg, #96c93d, #00b09b);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+      }
+
+      .modal h2 {
+        color: #2c3e50;
+        margin-bottom: 1rem;
+        font-size: 2rem;
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      #modalResult {
+        font-size: 1.2rem;
+        color: #34495e;
+        margin: 1rem 0;
+        padding: 1rem;
+        background: rgba(102, 126, 234, 0.1);
+        border-radius: 10px;
+      }
+
+      /* Add leaderboard styles */
+      .leaderboard {
+        max-width: 800px;
+        margin: 2rem auto;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 2rem;
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+      }
+
+      .leaderboard h2 {
+        color: white;
+        margin-bottom: 1rem;
+        text-align: center;
+        font-size: 2rem;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .leaderboard-table {
+        width: 100%;
+        border-collapse: collapse;
+        color: white;
+      }
+
+      .leaderboard-table th,
+      .leaderboard-table td {
+        padding: 1rem;
+        text-align: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .leaderboard-table th {
+        font-weight: 600;
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      .leaderboard-table tr:hover {
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      /* Add name input styles */
+      .name-input {
+        padding: 0.5rem 1rem;
+        margin: 1rem 0;
+        border: 2px solid #e0e0e0;
+        border-radius: 5px;
+        font-size: 1rem;
+        width: 100%;
+        max-width: 300px;
+        transition: border-color 0.3s ease;
+      }
+
+      .name-input.error {
+        border-color: #e74c3c;
+      }
+
+      .error-message {
+        color: #e74c3c;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+        display: none;
+      }
+
+      @media (max-width: 768px) {
+        body {
+          padding: 1rem;
+        }
+
+        h1 {
+          font-size: 3rem;
+        }
+
+        button#cpsbtn {
+          height: 200px;
+        }
+      }
+
+      /* Add ripple styles */
+      .ripple {
+        position: absolute;
+        background: rgba(255, 255, 255, 0.7);
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+        border-radius: 50%;
+        animation: rippleEffect 0.6s linear;
+      }
+
+      @keyframes rippleEffect {
+        0% {
+          width: 0;
+          height: 0;
+          opacity: 0.5;
+        }
+        100% {
+          width: 500px;
+          height: 500px;
+          opacity: 0;
+        }
+      }
+
+      /* Add styles for share buttons */
+      .share-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 1rem;
+      }
+
+      .share-button {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 5px;
+        background: linear-gradient(45deg, #00b09b, #96c93d);
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+      }
+
+      .share-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      /* Add replay button styles */
+      .replay-btn {
+        padding: 0.3rem 0.8rem;
+        border: none;
+        border-radius: 4px;
+        background: linear-gradient(45deg, #48dbfb, #1e90ff);
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+      }
+
+      .replay-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+      }
+
+      /* Add replay animation styles */
+      .replay-animation {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 2rem;
+      }
+
+      .replay-counter {
+        font-size: 4rem;
+        margin: 2rem 0;
+      }
+    </style>
+  </head>
+  
+  <body>
+    <h1>CPS Test</h1>
+
+    <p class="description">
+      CPS stands for Clicks Per Second. This is how many times you can click your mouse, trackpad, or screen in one second.
+      An average person can click with a CPS of 6.51. An average video gamer has a CPS from 7-10 depending on their game.
+      Sometimes they can go up to 20-30 CPS. Can you beat that? Test how fast you can click!
+    </p>
+
+    <div class="timer-display">
+      Time Left: <span id="time"></span> Seconds
+    </div>
+
+    <select id="durationSelect" class="duration-select">
+      <option value="1000">1 Second</option>
+      <option value="5000" selected>5 Seconds</option>
+      <option value="10000">10 Seconds</option>
+      <option value="30000">30 Seconds</option>
+      <option value="60000">60 Seconds</option>
+    </select>
+
+    <button id="cpsbtn">
+      <span id="display"></span>
     </button>
-</body>
+
+    <div id="resultModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Test Complete!</h2>
+        <p id="modalResult"></p>
+        <input type="text" id="playerName" class="name-input" placeholder="Enter name (optional)" maxlength="20">
+        <p id="nameError" class="error-message">Please choose a more appropriate name</p>
+        <button id="tryAgainBtn">Try Again</button>
+      </div>
+    </div>
+
+    <!-- Add leaderboard -->
+    <div class="leaderboard">
+      <h2>Top Scores</h2>
+      <table class="leaderboard-table">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Name</th>
+            <th>CPS</th>
+            <th>Duration</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboardBody">
+        </tbody>
+      </table>
+      <div class="share-buttons">
+        <button class="share-button" id="exportBtn">Export Scores</button>
+        <button class="share-button" id="importBtn">Import Scores</button>
+        <input type="file" id="importInput" accept=".json" style="display: none;">
+      </div>
+    </div>
+
+    <script>
+      let count = 0;
+      let isRunning = false;
+      let startTime;
+      const btn = document.getElementById("cpsbtn");
+      const disp = document.getElementById("display");
+      const timeLeft = document.getElementById("time");
+      const modal = document.getElementById("resultModal");
+      const modalResult = document.getElementById("modalResult");
+      const closeBtn = document.getElementsByClassName("close")[0];
+      const tryAgainBtn = document.getElementById("tryAgainBtn");
+      const durationSelect = document.getElementById("durationSelect");
+      let timeRemaining = parseInt(durationSelect.value);
+      const leaderboardBody = document.getElementById("leaderboardBody");
+      const playerNameInput = document.getElementById("playerName");
+
+      function updateInitialTime() {
+        timeRemaining = parseInt(durationSelect.value);
+        timeLeft.innerHTML = (timeRemaining / 1000).toFixed(3);
+      }
+
+      updateInitialTime();
+      disp.innerHTML = "Click to Start";
+
+      durationSelect.addEventListener("change", function() {
+        if (!isRunning) {
+          updateInitialTime();
+        }
+      });
+
+      btn.addEventListener("click", function(e) {
+        // Create ripple effect
+        const ripple = document.createElement("span");
+        ripple.classList.add("ripple");
+        this.appendChild(ripple);
+        
+        // Get click position
+        const rect = this.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        // Position the ripple
+        ripple.style.left = `${x}px`;
+        ripple.style.top = `${y}px`;
+        
+        // Remove ripple after animation
+        ripple.addEventListener("animationend", () => {
+          ripple.remove();
+        });
+
+        if (!isRunning) {
+          isRunning = true;
+          count = 1;
+          startTime = Date.now();
+          disp.innerHTML = count;
+          const testDuration = parseInt(durationSelect.value);
+          
+          const timer = setInterval(() => {
+            timeRemaining = testDuration - (Date.now() - startTime);
+            
+            if (timeRemaining <= 0) {
+              clearInterval(timer);
+              isRunning = false;
+              const seconds = testDuration / 1000;
+              const cps = (count / seconds).toFixed(2);
+              disp.innerHTML = `Your CPS: ${cps}`;
+              timeLeft.innerHTML = "0.000";
+              timeRemaining = testDuration;
+              
+              showResults(cps, testDuration);
+              
+              setTimeout(() => {
+                disp.innerHTML = "Click to Start";
+                timeLeft.innerHTML = (testDuration / 1000).toFixed(3);
+              }, 2000);
+            } else {
+              timeLeft.innerHTML = (timeRemaining / 1000).toFixed(3);
+            }
+          }, 10);
+        } else {
+          count++;
+          disp.innerHTML = count;
+        }
+      });
+
+      // Update the modal display and save score
+      function showResults(cps, duration) {
+        modalResult.innerHTML = `You achieved ${cps} Clicks Per Second over ${duration / 1000} seconds!`;
+        modal.style.display = "block";
+        playerNameInput.value = ''; // Clear previous input
+      }
+
+      // Advanced name validation function
+      function validateName(name) {
+        // Basic cleanup
+        name = name.trim().replace(/\s+/g, ' ');
+        
+        // Common patterns for inappropriate content
+        const patterns = [
+          /[^\w\s]/i,                    // No special characters
+          /f+[\W_]*u+[\W_]*c+[\W_]*k/i,  // Common curse word variations
+          /s+[\W_]*h+[\W_]*[i1]+[\W_]*t/i, // Variations of bad words
+          /b+[\W_]*i+[\W_]*t+[\W_]*c+[\W_]*h/i,
+          /a+[\W_]*s+[\W_]*s/i,
+          /p+[\W_]*[e3]+[\W_]*n+[\W_]*[i1]+[\W_]*s/i,
+          /d+[\W_]*[i1]+[\W_]*c+[\W_]*k/i,
+          /\bn[i1]g+/i,                  // Racial slurs
+          /h[o0]rny/i,                   // Inappropriate terms
+          /s[e3]x/i,
+          /p[o0]rn/i,
+          /xxx/i,
+          /69/,                          // Inappropriate numbers
+          /420/,
+        ];
+
+        // Check for common number/letter substitutions
+        const normalizedName = name.toLowerCase()
+          .replace(/0/g, 'o')
+          .replace(/1/g, 'i')
+          .replace(/3/g, 'e')
+          .replace(/4/g, 'a')
+          .replace(/5/g, 's')
+          .replace(/7/g, 't')
+          .replace(/8/g, 'b')
+          .replace(/\$/g, 's')
+          .replace('@', 'a');
+
+        // Check all patterns
+        const hasInappropriateContent = patterns.some(pattern => 
+          pattern.test(name) || pattern.test(normalizedName)
+        );
+
+        // Additional checks for hidden patterns
+        const containsRepeatedChars = /(.)\1{3,}/.test(name);  // Like 'aaaa'
+        const tooManyNumbers = (name.match(/\d/g) || []).length > 4;
+        const tooManyUppercase = (name.match(/[A-Z]/g) || []).length > 10;
+
+        return {
+          isValid: !hasInappropriateContent && 
+                  !containsRepeatedChars && 
+                  !tooManyNumbers && 
+                  !tooManyUppercase && 
+                  name.length >= 2 && 
+                  name.length <= 20,
+          sanitized: name
+        };
+      }
+
+      // Replace the GitHub Gist code with this simpler localStorage version
+      function loadScores() {
+        try {
+          const scores = JSON.parse(localStorage.getItem('cpsScores')) || [];
+          return scores;
+        } catch (error) {
+          console.error('Error loading scores:', error);
+          return [];
+        }
+      }
+
+      function saveScore(name, cps, duration) {
+        if (!isNaN(cps)) {
+          try {
+            const currentScores = loadScores();
+            
+            const newScore = {
+              name: name || 'Anonymous',
+              cps: parseFloat(cps),
+              duration: duration / 1000,
+              date: new Date().toLocaleDateString()
+            };
+            
+            currentScores.push(newScore);
+            currentScores.sort((a, b) => b.cps - a.cps);
+            currentScores.splice(10); // Keep top 10
+
+            localStorage.setItem('cpsScores', JSON.stringify(currentScores));
+            updateLeaderboard();
+            return true;
+          } catch (error) {
+            console.error('Error saving score:', error);
+            return false;
+          }
+        }
+        return false;
+      }
+
+      // Add real-time name validation
+      playerNameInput.addEventListener('input', function() {
+        const nameError = document.getElementById('nameError');
+        if (this.value) {
+          const { isValid } = validateName(this.value);
+          if (!isValid) {
+            this.classList.add('error');
+            nameError.style.display = 'block';
+          } else {
+            this.classList.remove('error');
+            nameError.style.display = 'none';
+          }
+        } else {
+          this.classList.remove('error');
+          nameError.style.display = 'none';
+        }
+      });
+
+      // Update the Try Again button handler
+      tryAgainBtn.onclick = function() {
+        const cps = parseFloat(disp.innerHTML.split(': ')[1]);
+        const duration = parseInt(durationSelect.value);
+        
+        if (playerNameInput.value) {  // Only try to save if name was entered
+          saveScore(playerNameInput.value, cps, duration);
+        }
+        
+        modal.style.display = "none";
+        disp.innerHTML = "Click to Start";
+        updateInitialTime();
+      }
+
+      closeBtn.onclick = function() {
+        modal.style.display = "none";
+        disp.innerHTML = "Click to Start";
+        updateInitialTime();
+      }
+
+      // Update updateLeaderboard function
+      function updateLeaderboard() {
+        const scores = loadScores();
+        leaderboardBody.innerHTML = scores.map((score, index) => `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${score.name}</td>
+            <td>${score.cps}</td>
+            <td>${score.duration}s</td>
+            <td>${score.date}</td>
+            <td><button class="replay-btn" onclick="replayScore(${score.cps}, ${score.duration})">Replay</button></td>
+          </tr>
+        `).join('');
+      }
+
+      // Add replay functionality
+      function replayScore(cps, duration) {
+        const totalClicks = Math.round(cps * duration);
+        const clickInterval = (duration * 1000) / totalClicks;
+        let currentCount = 0;
+        
+        // Create replay overlay
+        const overlay = document.createElement('div');
+        overlay.className = 'replay-animation';
+        overlay.innerHTML = `
+          <div>Replaying ${cps} CPS over ${duration} seconds</div>
+          <div class="replay-counter">0</div>
+          <div>Press ESC to exit</div>
+        `;
+        document.body.appendChild(overlay);
+        
+        const counter = overlay.querySelector('.replay-counter');
+        
+        // Start replay
+        const startTime = Date.now();
+        const timer = setInterval(() => {
+          const elapsed = (Date.now() - startTime) / 1000;
+          currentCount = Math.min(Math.floor(elapsed * cps), totalClicks);
+          counter.textContent = currentCount;
+          
+          if (currentCount >= totalClicks) {
+            clearInterval(timer);
+            setTimeout(() => {
+              document.body.removeChild(overlay);
+            }, 1000);
+          }
+        }, 16); // ~60fps update
+
+        // Allow ESC to exit replay
+        const escHandler = function(e) {
+          if (e.key === 'Escape') {
+            clearInterval(timer);
+            document.body.removeChild(overlay);
+            document.removeEventListener('keydown', escHandler);
+          }
+        };
+        document.addEventListener('keydown', escHandler);
+
+        // Allow click to exit replay
+        overlay.addEventListener('click', function() {
+          clearInterval(timer);
+          document.body.removeChild(overlay);
+          document.removeEventListener('keydown', escHandler);
+        });
+      }
+
+      // Initial load of leaderboard
+      updateLeaderboard();
+
+      // Add click handler for modal background
+      modal.addEventListener('click', function(event) {
+        // Check if click is outside the modal content
+        if (event.target === modal) {
+          modal.style.display = "none";
+          disp.innerHTML = "Click to Start";
+          updateInitialTime();
+        }
+      });
+
+      // Add keyboard handler for Escape key
+      document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape' && modal.style.display === 'block') {
+          modal.style.display = "none";
+          disp.innerHTML = "Click to Start";
+          updateInitialTime();
+        }
+      });
+
+      // Add export/import functionality
+      const exportBtn = document.getElementById('exportBtn');
+      const importBtn = document.getElementById('importBtn');
+      const importInput = document.getElementById('importInput');
+
+      // Export scores to file
+      exportBtn.onclick = function() {
+        const scores = loadScores();
+        const blob = new Blob([JSON.stringify(scores, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'cps-scores.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+
+      // Trigger file input when import button is clicked
+      importBtn.onclick = function() {
+        importInput.click();
+      }
+
+      // Handle file import
+      importInput.onchange = function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            try {
+              const importedScores = JSON.parse(e.target.result);
+              // Validate imported scores
+              if (Array.isArray(importedScores) && importedScores.every(score => 
+                score.name && score.cps && score.duration && score.date
+              )) {
+                // Merge with existing scores
+                const currentScores = loadScores();
+                const mergedScores = [...currentScores, ...importedScores]
+                  .sort((a, b) => b.cps - a.cps)
+                  .slice(0, 10); // Keep top 10
+                
+                localStorage.setItem('cpsScores', JSON.stringify(mergedScores));
+                updateLeaderboard();
+                alert('Scores imported successfully!');
+              } else {
+                alert('Invalid score file format');
+              }
+            } catch (error) {
+              alert('Error importing scores');
+              console.error('Import error:', error);
+            }
+          };
+          reader.readAsText(file);
+        }
+      }
+    </script>
+  </body>
 
 </html>
