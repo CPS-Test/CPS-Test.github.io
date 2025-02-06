@@ -2,6 +2,9 @@
 <html>
   <head>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Add dynamic favicon -->
+    <link id="favicon" rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%23667eea' stroke='%23764ba2' stroke-width='5'/><circle cx='50' cy='50' r='35' fill='none' stroke='white' stroke-width='3'/><line x1='50' y1='50' x2='50' y2='25' stroke='white' stroke-width='3' stroke-linecap='round'><animateTransform attributeName='transform' type='rotate' from='0 50 50' to='360 50 50' dur='1s' repeatCount='indefinite'/></line><text x='50' y='65' text-anchor='middle' fill='white' font-family='Arial' font-size='20'>0</text></svg>">
+    <title>CPS Test</title>
     <style>
       * {
         margin: 0;
@@ -520,14 +523,19 @@
               timeLeft.innerHTML = "0.000";
               timeRemaining = testDuration;
               
+              updateFavicon(cps); // Update favicon with final CPS
               showResults(cps, testDuration);
               
               setTimeout(() => {
                 disp.innerHTML = "Click to Start";
                 timeLeft.innerHTML = (testDuration / 1000).toFixed(3);
+                updateFavicon(0); // Reset favicon
               }, 2000);
             } else {
               timeLeft.innerHTML = (timeRemaining / 1000).toFixed(3);
+              // Update favicon with current CPS during the test
+              const currentCPS = (count / ((testDuration - timeRemaining) / 1000)).toFixed(1);
+              updateFavicon(currentCPS);
             }
           }, 10);
         } else {
@@ -818,6 +826,21 @@
           };
           reader.readAsText(file);
         }
+      }
+
+      // Function to update favicon with CPS
+      function updateFavicon(cps) {
+        const faviconElement = document.getElementById('favicon');
+        const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>
+          <circle cx='50' cy='50' r='45' fill='%23667eea' stroke='%23764ba2' stroke-width='5'/>
+          <circle cx='50' cy='50' r='35' fill='none' stroke='white' stroke-width='3'/>
+          <line x1='50' y1='50' x2='50' y2='25' stroke='white' stroke-width='3' stroke-linecap='round'>
+            <animateTransform attributeName='transform' type='rotate' from='0 50 50' to='360 50 50' dur='1s' repeatCount='indefinite'/>
+          </line>
+          <text x='50' y='65' text-anchor='middle' fill='white' font-family='Arial' font-size='20'>${cps}</text>
+        </svg>`;
+        
+        faviconElement.href = `data:image/svg+xml,${encodeURIComponent(svg)}`;
       }
     </script>
   </body>
